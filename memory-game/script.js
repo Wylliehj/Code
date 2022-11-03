@@ -1,7 +1,7 @@
 const startButton = document.querySelector('#start');
 const scoreDiv = document.getElementById('score');
-let scoreVal = null;
-let scoreValLow = null;
+let scoreVal = 0;
+let scoreValLow = 0;
 const gameContainer = document.getElementById("game");
 const COLORS = [
   "red",
@@ -60,20 +60,29 @@ function createDivsForColors(colorArray) {
 }
 
 let compareArr = [];
+let div1 = '';
+let div2 = '';
 function handleCardClick(event) {
   const newColor = event.target.className;
+  const divClicked = event.target; //div clicked
   compareArr.push(newColor);
-
+  
+  
 
   if(compareArr.length < 3){
-    scoreVal += 1;
-    const scoreNum = document.getElementsByClassName('scoreNum');
-    scoreNum.innerText = scoreVal;
     event.target.style.backgroundColor = newColor;
-    console.log(scoreNum)
+    scoreVal += 1;
+    divClicked.removeEventListener('click', handleCardClick); //remove the event listener
   }
- 
+  if(compareArr.length === 1){
+    let div1 = divClicked; //attempt to assign div to value div 1
+    console.log(div1)   //console.log works
+  }
+
   if(compareArr.length === 2){
+    let div2 = divClicked; //attempt to assign 2nd div clicked to value div 2
+    console.log(div2)   //console.log works
+    
     if(compareArr[0] === compareArr[1]){
       console.log('Match');
       compareArr = [];
@@ -83,6 +92,10 @@ function handleCardClick(event) {
         console.log('No match');
         let color1 = document.getElementsByClassName(compareArr[0]);
         let color2 = document.getElementsByClassName(compareArr[1]);
+        console.log(div1, div2); //only displays div2
+        div1.addEventListener('click', handleCardClick); //add event listener back if not a match, code only works on the div2
+        div2.addEventListener('click', handleCardClick);
+        
       
         for(let k of color1){
           k.style.backgroundColor = '';
@@ -99,3 +112,4 @@ function handleCardClick(event) {
 
 // when the DOM loads
 createDivsForColors(shuffledColors);
+
