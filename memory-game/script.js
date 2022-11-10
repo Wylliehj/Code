@@ -1,7 +1,8 @@
+
 const startButton = document.querySelector('#start');
 const scoreDiv = document.getElementById('score');
-let scoreVal = 0;
-let scoreValLow = 0;
+let scoreLow = localStorage.getItem('lowestscore');
+let scoreCounter = 0;
 const gameContainer = document.getElementById("game");
 const COLORS = [
   "red",
@@ -39,14 +40,18 @@ function createDivsForColors(colorArray) {
     score.innerText = 'Score: ';
     scoreDiv.append(score);
     const scoreNum = document.createElement('span');
-    scoreNum.classList.add('scoreNum');
-    scoreNum.innerText = scoreVal;
+    scoreNum.innerText = scoreCounter;
+    scoreNum.id = 'scoreNum';
     score.append(scoreNum);
 
     const lowScore = document.createElement('div');
-    lowScore.classList.add('lowScore')
+    lowScore.id = 'lowscore';
     lowScore.innerText = 'Lowest Score: ';
     scoreDiv.append(lowScore);
+    const lowSpan = document.createElement('span')
+    lowSpan.innerText = scoreLow;
+    lowSpan.id = 'lowSpan';
+    lowScore.append(lowSpan);
 
     startButton.remove();
 
@@ -60,55 +65,84 @@ function createDivsForColors(colorArray) {
 }
 
 let compareArr = [];
-let div1 = '';
-let div2 = '';
+let gameOver = COLORS.length;
+
 function handleCardClick(event) {
   const newColor = event.target.className;
   const divClicked = event.target; //div clicked
   compareArr.push(newColor);
   
-  
 
   if(compareArr.length < 3){
     event.target.style.backgroundColor = newColor;
-    scoreVal += 1;
+    scoreCounter += 1;
+    // scoreLow += 1;
+    document.getElementById('scoreNum').innerHTML = scoreCounter;
+    // document.getElementById('lowSpan').innerHTML = scoreLow;
     divClicked.removeEventListener('click', handleCardClick); //remove the event listener
-  }
-  if(compareArr.length === 1){
-    let div1 = divClicked; //attempt to assign div to value div 1
-    console.log(div1)   //console.log works
   }
 
   if(compareArr.length === 2){
-    let div2 = divClicked; //attempt to assign 2nd div clicked to value div 2
-    console.log(div2)   //console.log works
-    
     if(compareArr[0] === compareArr[1]){
       console.log('Match');
+      gameOver -= 2;
+      console.log(gameOver);
       compareArr = [];
     }
     else{
       setTimeout(function() {
         console.log('No match');
         let color1 = document.getElementsByClassName(compareArr[0]);
-        let color2 = document.getElementsByClassName(compareArr[1]);
-        console.log(div1, div2); //only displays div2
-        div1.addEventListener('click', handleCardClick); //add event listener back if not a match, code only works on the div2
-        div2.addEventListener('click', handleCardClick);
-        
-      
+        let color2 = document.getElementsByClassName(compareArr[1]);        
+     
         for(let k of color1){
           k.style.backgroundColor = '';
+          k.addEventListener('click', handleCardClick)
         }
 
         for(let k of color2){
           k.style.backgroundColor = '';
+          k.addEventListener('click', handleCardClick)
         }
         compareArr = [];
       },1000)
     }
   }
+  setTimeout(function() {
+    if (gameOver === 0){
+      window.alert('Game Over!');
+      window.alert(`Your score was: ${scoreCounter}`)
+      let gameOver = 1;
+
+      for(let color of COLORS){
+        let removeColor = document.getElementsByClassName(color);
+        
+        for(let k of removeColor){
+          k.remove();
+        }
+      }
+      let restartButton = document.createElement('button')
+      restartButton.innerText = 'Restart Game';
+      gameContainer.append(restartButton);
+
+      gameContainer.addEventListener('click', function(event){
+        location.reload();
+      })
+
+      if (scoreCounter < scoreLow){
+        scoreLow = scoreCounter;
+        localStorage.setItem('lowestscore', scoreLow);
+      }
+      else if (scoreLow === null) {
+        scoreLow = scoreCounter;
+        localStorage.setItem('lowestscore', scoreLow);
+      }
+    }
+  },1000) 
 }
+
+
+
 
 // when the DOM loads
 createDivsForColors(shuffledColors);
